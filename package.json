@@ -1,0 +1,38 @@
+{
+  "name": "Buy-Tech",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.4.0",
+    "@fortawesome/free-brands-svg-icons": "^6.4.0",
+    "@fortawesome/free-regular-svg-icons": "^6.4.0",
+    "@fortawesome/free-solid-svg-icons": "^6.4.0",
+    "@fortawesome/vue-fontawesome": "^3.0.3",
+    "@vueform/slider": "^2.1.7",
+    "axios": "^0.27.2",
+    "blueimp-md5": "^2.19.0",
+    "bootstrap": "^5.2.3",
+    "core-js": "^3.8.3",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.5.28",
+    "vue": "^3.2.13",
+    "vue-awesome-paginate": "^1.1.46",
+    "vue-router": "^4.0.3",
+    "vue3-paystack": "^0.0.5",
+    "vuex": "^4.0.2",
+    "vuex-persistedstate": "^4.1.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.16",
+    "@babel/eslint-parser": "^7.12.16",
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-plugin-router": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "prettier": "^2.4.1"
+  }
+}

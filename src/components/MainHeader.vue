@@ -1,0 +1,547 @@
+<template>
+    <header>
+        <div class="container">
+            <nav class="top__navigation">
+                <router-link to="/">
+                    <h3 class="logo">Buy-Tech</h3>
+                </router-link>
+                <div class="nav__links" :class="{ activeNav: showSideNav ,'show-search': showSearch}">
+                    <svg @click="hideNav" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
+                        class="bi bi-x-lg close-btn" viewBox="0 0 16 16">
+                        <path
+                            d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
+                    </svg>
+
+                    <ButtonCat />
+                    <router-link @click="hideNav" to="/Configurateur-produit">Configurateur</router-link>
+
+                    <form @submit.prevent="search" class="search-form">
+                        <input type="text" name="q" placeholder="Recherche..." v-model="NameRechercher" />
+                        <button type="submit" class="search-button"><i class="fa fa-search"></i></button>
+                    </form>
+                    <div class="search-results" v-if="ProduitRechercher.length > 0">
+                        <ul class="submenu">
+                            <li v-for="product in rechercherProduit" :key="product.productId">
+                                <a class="dropdown-item" :href="'/cart/' + product.productId">{{ product.productName }}</a>
+                            </li>
+                        </ul>
+                    </div>
+
+
+
+
+
+
+                    <router-link @click="hideNav" to="/"> <svg xmlns="http://www.w3.org/2000/svg" width="1.25em"
+                            height="1.25em" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16">
+                            <path
+                                d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5ZM13 7.207V13.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5V7.207l5-5 5 5Z" />
+                        </svg></router-link>
+                    <!-- <router-link @click="hideNav" to="/">Home</router-link>-->
+                    <!-- <router-link @click="hideNav" to="/shop">Shop</router-link>-->
+                    <!-- <router-link @click="hideNav" to="/blog">Blog</router-link>-->
+
+
+                    <router-link @click="hideNav" to="/cart" class="desktop-cart">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1.25em" height="1.25em" fill="currentColor"
+                            class="bi bi-bag" viewBox="0 0 16 16">
+                            <path
+                                d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z" />
+                        </svg>
+                        <div class="qty" v-if="cart.length >= 1">
+                            <span>{{ cart.length }}</span>
+                        </div>
+                    </router-link>
+                    <router-link @click="hideNav" to="/contact"><svg xmlns="http://www.w3.org/2000/svg" width="1.25em"
+                            height="1.25em" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
+                            <path
+                                d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z" />
+                        </svg></router-link>
+                    <router-link @click="hideNav" to="/about">À propos</router-link>
+                    <template v-if="!user">
+                        <router-link @click="hideNav" to="/login" class="auth-link">Login</router-link>
+                        <router-link @click="hideNav" to="/signup" class="auth-link">
+                            <action-button>Sign Up</action-button>
+                        </router-link>
+                    </template>
+
+                    <template v-else>
+                        <button class="log-out auth-link" @click="logout" aria-label="mobile logout">
+                            Déconnexion
+                        </button>
+                        <button aria-label="desktop logout" @click="showDropDown = !showDropDown" class="nav-profile">
+                            <img :src="getHash" :alt="user.firstName + ' ' + user.lastName" />
+                            <span class="name">&#128075; Bonjour,{{ user.firstName }}!</span>
+
+                            <svg @mouseenter="showDropDown = !showDropDown" xmlns="http://www.w3.org/2000/svg" width="18"
+                                height="18" fill="currentColor" class="bi bi-chevron-down" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z" />
+                            </svg>
+                            <div class="dropdown" v-if="showDropDown" @mouseleave="showDropDown = !showDropDown">
+                                <div class="dropdown-profile">
+                                    <span>Connecté en tant que</span>
+                                    <span class="dropdown-name">{{
+                                        user.firstName + " " + user.lastName
+                                    }}</span>
+                                </div>
+                                <router-link :to="{ name: 'shop' }" class="dropdown-link" aria-label="Go to shop">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor"
+                                        class="bi bi-box-arrow-up-right" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd"
+                                            d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z" />
+                                        <path fill-rule="evenodd"
+                                            d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z" />
+                                    </svg>
+                                    <span>Magasiner</span>
+                                </router-link>
+                                <button @click="logout" class="dropdown-link" aria-label="Logout">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor"
+                                        class="bi bi-power dropdown-logout" viewBox="0 0 16 16">
+                                        <path d="M7.5 1v7h1V1h-1z" />
+                                        <path
+                                            d="M3 8.812a4.999 4.999 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11 3.616l-.501.865A5 5 0 1 1 3 8.812z" />
+                                    </svg>
+                                    <span>Déconnexion</span>
+                                </button>
+                            </div>
+                        </button>
+                    </template>
+                </div>
+
+                <div class="mobile-menu">
+                    <router-link to="/cart" class="mobile-cart" aria-label="Go to cart">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor"
+                            class="bi bi-bag" viewBox="0 0 16 16">
+                            <path
+                                d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z" />
+                        </svg>
+                        <div class="qty" v-if="cart.length >= 1">
+                            <span>{{ cart.length }}</span>
+                        </div>
+                    </router-link>
+                    
+                    <svg @click="showNav" xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
+                        class="bi bi-list open-btn" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z" />
+                    </svg>
+                </div>
+            </nav>
+        </div>
+    </header>
+</template>
+
+<script>
+import { mapState, mapActions, mapGetters } from "vuex";
+import ActionButton from "./ActionButton.vue";
+import ButtonCat from "./ButtonCat.vue";
+import axios from "axios";
+
+export default {
+    components: { ActionButton, ButtonCat },
+    name: "MainHeader",
+    props: {
+        msg: String,
+    },
+    data() {
+        return {
+            showSideNav: false,
+            showDropDown: false,
+            showSearch:true,
+            NameRechercher: null,
+            ProduitRechercher: [],
+            products: [],
+        };
+    }, created() {
+        this.getProducts();
+
+    },computed: {
+    ...mapState(["user", "cart"]),
+    ...mapGetters(["getHash"]),
+    rechercherProduit() {
+      return this.search();
+    },
+  },watch: {
+    NameRechercher: function (newValue, oldValue) {
+      this.search();
+    },
+  },methods: {
+    ...mapActions(["remove_user"]),
+    showNav() {
+      this.showSideNav = true;
+    },
+    hideNav() {
+      this.showSideNav = false;
+    },
+    logout() {
+      this.remove_user();
+      this.$router.push("/");
+    },
+    getProducts() {
+      axios
+        .get("http://164.92.134.202:8099/api/product/allProduct")
+        .then((res) => {
+          this.products = res.data;
+          localStorage.setItem("produits", JSON.stringify(res.data));
+
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    search() {
+      let name = this.NameRechercher;
+      if (name == "") {
+        this.ProduitRechercher = [];
+        return this.ProduitRechercher;
+      }
+      this.ProduitRechercher = this.products.filter((pro) => {
+        if (new RegExp(name, "i").test(pro.productName)) return pro;
+      });
+      return this.ProduitRechercher;
+    },
+  },
+};
+</script>
+<style scoped>
+button {
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.25s, color 0.25s;
+    border: none;
+}
+
+
+
+header {
+    background-color: lavender;
+    box-shadow: 0 1px 10px 3px rgba(0, 0, 0, 0.03);
+    padding-block: 10px;
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 3;
+}
+
+.top__navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    color: var(--dim-blue);
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.nav__links a,
+.log-out {
+    padding-inline: 15px;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--dark-blue);
+    transition: all 0.25s ease-in-out;
+    line-height: 2rem;
+}
+
+.nav__links .log-out {
+    background-color: transparent;
+}
+
+a.active__page,
+.nav__links a:hover,
+
+.mobile-menu a:hover {
+    color: var(--dark-blue);
+}
+
+.nav__links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.nav__links a::after,
+.mobile-menu a::after {
+    content: "";
+    display: block;
+    position: relative;
+    top: 2px;
+    height: 2px;
+    left: 0;
+    width: 0;
+    background-color: var(--dark-blue);
+    border-radius: 6px;
+    transition: width 0.25s ease;
+}
+
+.nav__links a:hover::after,
+.mobile-menu a:hover::after {
+    width: 70%;
+}
+
+.nav__links a.router-link-exact-active::after {
+    width: 70%;
+}
+
+.nav__links .auth-link::after,
+.dropdown .dropdown-link::after {
+    display: none;
+}
+
+.desktop-cart {
+    display: initial;
+    position: relative;
+}
+
+.mobile-menu {
+    display: none;
+}
+
+.close-btn {
+    display: none;
+    font-size: 2.1rem;
+    cursor: pointer;
+}
+
+.qty {
+    height: 18px;
+    width: 18px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--dark-blue);
+    font-size: 14px;
+    color: white;
+    font-weight: 500;
+    position: absolute;
+    top: -4px;
+    right: 4px;
+}
+
+.nav-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    margin-left: 15px;
+    background: transparent;
+}
+
+.nav-profile img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+}
+
+.nav-profile .name {
+    font-size: 1.3rem;
+}
+
+.nav-profile svg {
+    font-size: 1.8em;
+    cursor: pointer;
+    font-weight: 900;
+}
+
+.dropdown {
+    background-color: white;
+    z-index: 2;
+    border-radius: 8px;
+    border: 1px solid var(--grey-2);
+    position: absolute;
+    top: 35px;
+    right: 0;
+    transition: 0.25s;
+    width: 170px;
+}
+
+.dropdown-profile {
+    padding: 10px;
+    font-size: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-bottom: 1px solid var(--grey-2);
+}
+
+.dropdown svg {
+    font-size: 1.6rem;
+    cursor: pointer;
+    font-weight: 900;
+}
+
+.dropdown .dropdown-logout {
+    font-size: 1.7rem;
+}
+
+.dropdown .dropdown-link {
+    font-size: 1.6rem;
+    color: #0a6d3f;
+    background-color: transparent;
+    padding: 10px;
+    width: 100%;
+
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 400;
+}
+
+.dropdown .dropdown-link:hover {
+    color: var(--dark-green);
+}
+
+.dropdown-name {
+    font-weight: 500;
+}
+
+.log-out {
+    display: none;
+}
+
+@media (max-width: 878px) {
+    .search-form {
+        flex-grow:0;
+        display: none;
+    }
+    .search-button {
+        display: none;
+    }
+    
+    .show-search .search-form {
+        display:flex;
+    }
+    .mobile-menu {
+        display: flex;
+        gap: 1.5rem;
+        color: var(--text);
+    }
+    .mobile-menu svg {
+        cursor: pointer;
+        font-size: 2rem;
+    }
+
+    .mobile-menu .open-btn {
+        font-size: 2.4rem;
+        font-weight: 900;
+    }
+
+    .nav__links {
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 2.2rem;
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        right: -55%;
+        width: 55%;
+        z-index: 2;
+        padding: 2rem 3rem;
+        background-color: white;
+        height: 100%;
+        box-shadow: 0 40px 60px rgba(0, 0, 0, 0.1);
+        transition: 0.25s;
+    }
+
+    .activeNav {
+        right: 0;
+    }
+
+    .nav__links a,
+    .log-out {
+        padding: 0.5rem 0;
+        font-size: 1.8rem;
+    }
+
+    .nav__links a {
+        width: 100%;
+    }
+
+    .nav__links a:hover::after {
+        width: 2.5rem;
+    }
+
+    .nav__links a.router-link-exact-active::after {
+        width: 2.5rem;
+    }
+
+    .close-btn {
+        display: initial;
+    }
+
+    .desktop-cart {
+        display: none;
+    }
+
+    .mobile-cart {
+        position: relative;
+        z-index: 1;
+    }
+
+    .qty {
+        align-items: center;
+    }
+
+    .log-out {
+        display: initial;
+    }
+
+    .nav-profile {
+        display: none;
+    }
+}
+
+
+input::placeholder {
+    color: var(--dim-blue);
+    font-size: 1em;
+    right: 0
+}
+
+.search-button {
+    margin-left: 0.5em;
+    background-color: var(--dim-blue);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    font-size: 1.5em;
+    cursor: pointer;
+    border-radius: 50%;
+
+}
+
+
+.search-button i {
+    margin-right: 100%;
+}
+.search-results {
+  position: absolute;
+  text-align: center;
+  top: 100%;
+  left: 30%;
+  width: 40%;
+  background-color: white;
+  z-index: 9999;
+}
+.search-results a {
+  
+  font-size: 1.5em;
+  
+}
+.search-form {
+    display: flex;
+    align-items: center;
+}
+.search-form input[type="text"] {
+    margin-right:auto;
+    margin-left:auto;
+    height: 40px;
+    width: 350px;
+
+}
+</style>
